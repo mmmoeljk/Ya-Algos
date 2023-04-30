@@ -1,0 +1,84 @@
+#include <iostream>
+#include <string>
+#include <stack>
+#include <vector>
+#include <algorithm>
+
+int main(){
+
+    long long  N, number, def;
+    std::cin >> N;
+
+    std::string add = "add", get = "get", del = "delete";
+
+    std::string str_input, prod_input;
+    std::vector<std::string> product_data;
+    std::vector<long long> num_data;
+
+    std::stack<std::string> str_stack;
+    std::stack<long long> num_stack;
+
+    for(long long i = 0; i < N; i++) {
+        std::cin >> str_input;
+
+        if(str_input == add) {
+            std::cin >> number >> prod_input;
+
+            num_stack.push(number);
+            str_stack.push(prod_input);
+
+            auto at_data = std::find(product_data.begin(), product_data.end(), prod_input);
+            if(at_data == product_data.end()) {
+                product_data.push_back(prod_input);
+                num_data.push_back(number);
+            } else
+                num_data.at(std::distance(product_data.begin(), at_data)) += number;
+
+        } else if(str_input == del && !num_stack.empty()) {
+
+            std::cin >> number;
+
+            while(number > 0) {
+                if (number < num_stack.top()) {
+                    def = num_stack.top() - number;
+                    num_stack.pop();
+                    num_stack.push(def);
+                    auto at_data = std::find(product_data.begin(), product_data.end(), str_stack.top());
+
+                    num_data.at(std::distance(product_data.begin(), at_data)) -= number;
+
+                    number = 0;
+                    continue;
+                } else if (number == num_stack.top()) {
+                    auto at_data = std::find(product_data.begin(), product_data.end(), str_stack.top());
+                    num_data.at(std::distance(product_data.begin(), at_data)) -= number;
+                    num_stack.pop();
+                    str_stack.pop();
+                    number = 0;
+                    continue;
+                } else {
+                    number -= num_stack.top();
+                    auto at_data = std::find(product_data.begin(), product_data.end(), str_stack.top());
+
+                    num_data.at(std::distance(product_data.begin(), at_data)) -= num_stack.top();
+                    str_stack.pop();
+                    num_stack.pop();
+                }
+            }
+        } else if(str_input == get) {
+            std::cin >> prod_input;
+            if(str_stack.empty()) {
+                std::cout << 0 << std::endl;
+                continue;
+            }
+            auto at_data = std::find(product_data.begin(), product_data.end(), prod_input);
+            if(at_data == product_data.end()) {
+                std::cout << 0 << std::endl;
+                continue;
+            } else std::cout << num_data.at(std::distance(product_data.begin(), at_data)) << std::endl;
+        }
+        fflush(stdin);
+    }
+
+    return 0;
+}
